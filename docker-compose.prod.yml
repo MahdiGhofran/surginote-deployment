@@ -1,0 +1,80 @@
+# ============================================
+# SurgiNote Production Overrides
+# ============================================
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+#
+# Features:
+#   - Multi-stage builds for minimal image size
+#   - Non-root user execution
+#   - Resource limits for container isolation
+#   - Production-optimized logging
+#   - Nginx serving static assets with caching
+
+services:
+  # ============================================
+  # Backend API - Production Configuration
+  # ============================================
+  surginote-api:
+    build:
+      context: ./surginote-server
+      dockerfile: Dockerfile
+    image: surginote-api:prod
+    environment:
+      - LOG_LEVEL=WARNING
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY is required for production}
+      - PYTHONDONTWRITEBYTECODE=1
+    # Resource limits for production
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    # Production logging configuration
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # ============================================
+  # Frontend Client - Production Configuration
+  # ============================================
+  surginote-client:
+    build:
+      context: ./surginote-client
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+    image: surginote-client:prod
+    # Production serves on port 80 inside container, map to 8080
+    ports:
+      - '8080:80'
+    environment:
+      - NODE_ENV=production
+    # Healthcheck for nginx
+    healthcheck:
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost/']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    # Resource limits for production
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    # Production logging configuration
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+

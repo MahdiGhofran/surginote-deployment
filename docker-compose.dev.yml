@@ -1,0 +1,67 @@
+# ============================================
+# SurgiNote Development Overrides
+# ============================================
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+#
+# Features:
+#   - Hot-reloading for both frontend and backend
+#   - Source code volume mounts for live editing
+#   - Debug-friendly logging
+#   - Local data directories mounted
+
+services:
+  # ============================================
+  # Backend API - Development Configuration
+  # ============================================
+  surginote-api:
+    build:
+      context: ./surginote-server
+      dockerfile: Dockerfile.dev
+    image: surginote-api:dev
+    volumes:
+      # Mount source code for hot-reload
+      - ./surginote-server:/app:delegated
+      # Prevent venv from being overwritten by host mount
+      - /app/.venv
+      # Use local data directories (easier debugging)
+      - ./surginote-server/server_data:/app/server_data
+      - ./surginote-server/videos:/app/videos
+      - ./surginote-server/profile_images:/app/profile_images
+      - ./surginote-server/voice_recordings:/app/voice_recordings
+    environment:
+      - LOG_LEVEL=DEBUG
+      - PYTHONDONTWRITEBYTECODE=1
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
+    # Override healthcheck for faster startup in dev
+    healthcheck:
+      test: ['CMD', 'python', '-c', "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/openapi.json')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ============================================
+  # Frontend Client - Development Configuration
+  # ============================================
+  surginote-client:
+    volumes:
+      # Mount source code for hot-reload (Vite HMR)
+      - ./surginote-client/src:/app/src:delegated
+      - ./surginote-client/public:/app/public:delegated
+      - ./surginote-client/index.html:/app/index.html:delegated
+      - ./surginote-client/vite.config.js:/app/vite.config.js:delegated
+      # Prevent node_modules from being mounted (use container's version)
+      - /app/node_modules
+    environment:
+      - VITE_DEV_MODE=true
+      - VITE_SHOW_DEBUG_INFO=true
+      - VITE_API_BASE_URL=http://localhost:8000
+    # Override healthcheck for faster startup in dev
+    healthcheck:
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3001/']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+
