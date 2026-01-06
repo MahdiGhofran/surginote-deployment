@@ -69,8 +69,8 @@ dev-detached:
 	docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
 	@echo "$(CYAN)Services started! Access:$(RESET)"
 	@echo "  Frontend: http://localhost:3001"
-	@echo "  Backend:  http://localhost:8000"
-	@echo "  API Docs: http://localhost:8000/docs"
+	@echo "  Backend:  http://localhost:8001"
+	@echo "  API Docs: http://localhost:8001/docs"
 
 # ============================================
 # Production
@@ -79,8 +79,8 @@ prod:
 	@echo "$(GREEN)Starting production environment...$(RESET)"
 	docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 	@echo "$(CYAN)Production services started! Access:$(RESET)"
-	@echo "  Frontend: http://localhost:8080"
-	@echo "  Backend:  http://localhost:8000"
+	@echo "  Frontend: http://localhost:8081"
+	@echo "  Backend:  http://localhost:8001"
 
 # ============================================
 # Build
@@ -150,8 +150,8 @@ status:
 health:
 	@echo "$(CYAN)Checking service health...$(RESET)"
 	@echo ""
-	@echo -n "API Server (localhost:8000): "
-	@curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/openapi.json 2>/dev/null && echo "$(GREEN)OK$(RESET)" || echo "$(RED)FAILED$(RESET)"
+	@echo -n "API Server (localhost:8001): "
+	@curl -s -o /dev/null -w "%{http_code}" http://localhost:8001/openapi.json 2>/dev/null && echo "$(GREEN)OK$(RESET)" || echo "$(RED)FAILED$(RESET)"
 	@echo -n "Frontend (localhost:3001):   "
 	@curl -s -o /dev/null -w "%{http_code}" http://localhost:3001 2>/dev/null && echo "$(GREEN)OK$(RESET)" || echo "$(RED)FAILED$(RESET)"
 

@@ -51,7 +51,7 @@ services:
     image: surginote-client:prod
     # Production serves on port 80 inside container, map to 8080
     ports:
-      - '8080:80'
+      - '8081:80'
     environment:
       - NODE_ENV=production
     # Healthcheck for nginx

@@ -38,11 +38,11 @@ make prod
 
 ## 🌐 Access Points
 
-| Service | Development | Production |
-|---------|-------------|------------|
-| Frontend | http://localhost:3001 | http://localhost:8080 |
-| Backend API | http://localhost:8000 | http://localhost:8000 |
-| API Docs (Swagger) | http://localhost:8000/docs | http://localhost:8000/docs |
+| Service            | Development                | Production                 |
+| ------------------ | -------------------------- | -------------------------- |
+| Frontend           | http://localhost:3001      | http://localhost:8081      |
+| Backend API        | http://localhost:8001      | http://localhost:8001      |
+| API Docs (Swagger) | http://localhost:8001/docs | http://localhost:8001/docs |
 
 ## 📁 Project Structure
 
@@ -120,19 +120,19 @@ make db-backup    # Backup SQLite database
 
 ```bash
 # Development
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 
 # Production
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 
 # Stop all
-docker-compose down
+docker compose down
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Remove everything including volumes
-docker-compose down -v --remove-orphans
+docker compose down -v --remove-orphans
 ```
 
 ## ⚙️ Configuration
@@ -147,13 +147,13 @@ cp env.example .env
 
 Key variables:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SECRET_KEY` | API security key (required for prod) | `change-me...` |
-| `DATABASE_URL` | Database connection string | `sqlite:///./server_data/surginote.db` |
-| `LOG_LEVEL` | Logging level | `INFO` |
-| `VITE_API_BASE_URL` | Frontend API endpoint | `http://localhost:8000` |
-| `NODE_ENV` | Node environment | `development` |
+| Variable       | Description                          | Default                                |
+| -------------- | ------------------------------------ | -------------------------------------- |
+| `SECRET_KEY`   | API security key (required for prod) | `change-me...`                         |
+| `DATABASE_URL` | Database connection string           | `sqlite:///./server_data/surginote.db` |
+| `LOG_LEVEL`    | Logging level                        | `INFO`                                 |
+| `VITE_API_URL` | Frontend API endpoint                | `http://localhost:8001`                |
+| `NODE_ENV`     | Node environment                     | `development`                          |
 
 ## 🔄 Development Features
 
@@ -168,12 +168,12 @@ Source code is mounted as volumes, so changes are reflected immediately.
 
 ### Volume Mounts (Development)
 
-| Host Path | Container Path | Purpose |
-|-----------|----------------|---------|
-| `./surginote-client/src` | `/app/src` | Frontend source |
-| `./surginote-client/public` | `/app/public` | Static assets |
-| `./surginote-server` | `/app` | Backend source |
-| `./surginote-server/server_data` | `/app/server_data` | Database |
+| Host Path                        | Container Path     | Purpose         |
+| -------------------------------- | ------------------ | --------------- |
+| `./surginote-client/src`         | `/app/src`         | Frontend source |
+| `./surginote-client/public`      | `/app/public`      | Static assets   |
+| `./surginote-server`             | `/app`             | Backend source  |
+| `./surginote-server/server_data` | `/app/server_data` | Database        |
 
 ## 🏭 Production Features
 
@@ -202,12 +202,12 @@ Both Dockerfiles use multi-stage builds:
 
 Named volumes preserve data across container restarts:
 
-| Volume | Purpose |
-|--------|---------|
-| `surginote-api-data` | SQLite database |
-| `surginote-api-videos` | Uploaded videos |
-| `surginote-api-profiles` | User profile images |
-| `surginote-api-recordings` | Voice recordings |
+| Volume                     | Purpose             |
+| -------------------------- | ------------------- |
+| `surginote-api-data`       | SQLite database     |
+| `surginote-api-videos`     | Uploaded videos     |
+| `surginote-api-profiles`   | User profile images |
+| `surginote-api-recordings` | Voice recordings    |
 
 To backup the database:
 
@@ -215,7 +215,7 @@ To backup the database:
 make db-backup
 
 # Or manually
-docker-compose exec surginote-api cp /app/server_data/surginote.db /app/server_data/backup.db
+docker compose exec surginote-api cp /app/server_data/surginote.db /app/server_data/backup.db
 ```
 
 ## 🐛 Troubleshooting
@@ -223,35 +223,39 @@ docker-compose exec surginote-api cp /app/server_data/surginote.db /app/server_d
 ### Common Issues
 
 **Port already in use:**
+
 ```bash
-# Find process using port 8000
-lsof -i :8000
+# Find process using port 8001
+lsof -i :8001
 
 # Kill process (replace PID)
 kill -9 <PID>
 ```
 
 **Container won't start:**
+
 ```bash
 # Check logs
-docker-compose logs surginote-api
-docker-compose logs surginote-client
+docker compose logs surginote-api
+docker compose logs surginote-client
 
 # Rebuild from scratch
-docker-compose down -v
+docker compose down -v
 docker system prune -f
-docker-compose up --build
+docker compose up --build
 ```
 
 **Hot reload not working (Windows):**
 The Vite config includes `usePolling: true` which should fix this. If issues persist:
+
 1. Ensure Docker Desktop has file sharing enabled for your drive
 2. Try running Docker Desktop as Administrator
 
 **Database migration issues:**
+
 ```bash
 # Access API container
-docker-compose exec surginote-api /bin/bash
+docker compose exec surginote-api /bin/bash
 
 # Run migrations manually
 alembic upgrade head
@@ -265,7 +269,7 @@ alembic upgrade head
 cd surginote-server
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uvicorn main:app --reload --host 0.0.0.0 --port 8001
 ```
 
 ### Frontend
@@ -279,5 +283,3 @@ npm run dev
 ## 📄 License
 
 Part of the SurgiNote project.
-
-

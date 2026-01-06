@@ -59,9 +59,9 @@ show_help() {
     echo ""
     print_color "$YELLOW" "Access Points (after starting):"
     echo "  Frontend (dev):  http://localhost:3001"
-    echo "  Frontend (prod): http://localhost:8080"
-    echo "  Backend API:     http://localhost:8000"
-    echo "  API Docs:        http://localhost:8000/docs"
+    echo "  Frontend (prod): http://localhost:8081"
+    echo "  Backend API:     http://localhost:8001"
+    echo "  API Docs:        http://localhost:8001/docs"
     echo ""
 }
 
@@ -71,8 +71,8 @@ check_health() {
     echo ""
     
     # Check API
-    echo -n "  API Server (localhost:8000): "
-    if curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/openapi.json 2>/dev/null | grep -q "200"; then
+    echo -n "  API Server (localhost:8001): "
+    if curl -s -o /dev/null -w "%{http_code}" http://localhost:8001/openapi.json 2>/dev/null | grep -q "200"; then
         print_color "$GREEN" "OK"
     else
         print_color "$RED" "FAILED"
@@ -101,17 +101,17 @@ case "${1:-help}" in
         echo ""
         print_color "$CYAN" "Services started! Access:"
         echo "  Frontend: http://localhost:3001"
-        echo "  Backend:  http://localhost:8000"
-        echo "  API Docs: http://localhost:8000/docs"
+        echo "  Backend:  http://localhost:8001"
+        echo "  API Docs: http://localhost:8001/docs"
         ;;
     prod)
         print_color "$GREEN" "Starting production environment..."
         docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
         echo ""
         print_color "$CYAN" "Production services started! Access:"
-        echo "  Frontend: http://localhost:8080"
-        echo "  Backend:  http://localhost:8000"
-        echo "  API Docs: http://localhost:8000/docs"
+        echo "  Frontend: http://localhost:8081"
+        echo "  Backend:  http://localhost:8001"
+        echo "  API Docs: http://localhost:8001/docs"
         ;;
     build)
         print_color "$YELLOW" "Building all Docker images..."
